@@ -68,9 +68,9 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
     private View mNoMatchingCardsText;
     private View mNoGroupCardsText;
     private TabLayout groupsTabLayout;
-
+    private String currentQuery = "";
+    private String finalQuery = "";
     private Runnable mUpdateLoyaltyCardListRunnable;
-
     private ActivityResultLauncher<Intent> mBarcodeScannerLauncher;
     private ActivityResultLauncher<Intent> mSettingsLauncher;
 
@@ -197,7 +197,6 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
     protected void onCreate(Bundle inputSavedInstanceState) {
         SplashScreen.installSplashScreen(this);
         super.onCreate(inputSavedInstanceState);
-
         // We should extract the share intent after we called the super.onCreate as it may need to spawn a dialog window and the app needs to be initialized to not crash
         extractIntentFields(getIntent());
 
@@ -299,7 +298,6 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
         if (mSearchView != null && !mSearchView.isIconified()) {
             mFilter = mSearchView.getQuery().toString();
         }
-
         // Start of active tab logic
         updateTabGroups(groupsTabLayout);
 
@@ -509,6 +507,29 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
     }
 
     @Override
+    // Saving currentQuery to finalQuery for user, this will be used to restore search history, happens when user clicks a card from list
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        finalQuery = currentQuery;
+        // Putting the query also into outState for later use in onRestoreInstanceState when rotating screen
+        if (mSearchView != null) {
+            outState.putString("SEARCH_QUERY", finalQuery);
+        }
+    }
+
+    @Override
+    // Restoring instance state when rotation of screen happens with the goal to restore search query for user
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            finalQuery = savedInstanceState.getString("SEARCH_QUERY", "");
+            if (mSearchView != null) {
+                mSearchView.setQuery(finalQuery, false);
+            }
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu inputMenu) {
         getMenuInflater().inflate(R.menu.main_menu, inputMenu);
 
@@ -520,6 +541,7 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
             mSearchView = (SearchView) searchMenuItem.getActionView();
             mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
             mSearchView.setSubmitButtonEnabled(false);
+
 
             mSearchView.setOnCloseListener(() -> {
                 invalidateOptionsMenu();
@@ -559,7 +581,21 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
                 @Override
                 public boolean onQueryTextChange(String newText) {
                     mFilter = newText;
-
+                    // New logic to ensure search history after coming back from picked card - user will see the last search query
+                    if (newText.isEmpty()) {
+                        if(!finalQuery.isEmpty()){
+                            // Setting the query text for user after coming back from picked card from finalQuery
+                            mSearchView.setQuery(finalQuery, false);
+                        }
+                        else if(!currentQuery.isEmpty()){
+                            // Else if is needed in case user deletes search - expected behaviour is to show all cards
+                            currentQuery = "";
+                            mSearchView.setQuery(currentQuery, false);
+                        }
+                    } else {
+                        // Setting search query each time user changes the text in search to temporary variable to be used later in finalQuery String which will be used to restore search history
+                        currentQuery = newText;
+                    }
                     TabLayout.Tab currentTab = groupsTabLayout.getTabAt(groupsTabLayout.getSelectedTabPosition());
                     mGroup = currentTab != null ? currentTab.getTag() : null;
 
@@ -568,6 +604,13 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
                     return true;
                 }
             });
+            // Check if we came from a picked card back to search, in that case we want to show the search view with previous search query
+            if(!finalQuery.isEmpty()){
+                // Expand the search view to show the query
+                searchMenuItem.expandActionView();
+                // Setting the query text to empty String due to behaviour of onQueryTextChange after coming back from picked card - onQueryTextChange is called automatically without users interaction
+                finalQuery = "";
+            }
         }
 
         return super.onCreateOptionsMenu(inputMenu);
