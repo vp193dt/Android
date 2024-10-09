@@ -13,7 +13,6 @@ import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -30,7 +29,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
-import org.robolectric.fakes.RoboMenu;
 import org.robolectric.shadows.ShadowActivity;
 
 import java.math.BigDecimal;
@@ -715,11 +713,9 @@ public class MainActivityTest {
         activityController.start();
         activityController.resume();
 
-
         SQLiteDatabase database = TestHelpers.getEmptyDb(mainActivity).getWritableDatabase();
         DBHelper.insertLoyaltyCard(database, "The First Store", "Initial note", null, null, new BigDecimal("0"), null, "cardId", null, CatimaBarcode.fromBarcode(BarcodeFormat.UPC_A), Color.BLACK, 0, null,0);
         DBHelper.insertLoyaltyCard(database, "The Second Store", "Secondary note", null, null, new BigDecimal("0"), null, "cardId", null, CatimaBarcode.fromBarcode(BarcodeFormat.UPC_A), Color.BLACK, 0, null,0);
-
 
         mainActivity.mFilter = "store";
 
@@ -745,8 +741,4 @@ public class MainActivityTest {
 
         database.close();
     }
-
-
-
-
 }

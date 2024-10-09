@@ -52,6 +52,7 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
     public static final String RESTART_ACTIVITY_INTENT = "restart_activity_intent";
 
     private static final int MEDIUM_SCALE_FACTOR_DIP = 460;
+    static final String STATE_SEARCH_QUERY = "SEARCH_QUERY";
 
     private SQLiteDatabase mDatabase;
     private LoyaltyCardCursorAdapter mAdapter;
@@ -59,6 +60,8 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
     private SearchView mSearchView;
     private int mLoyaltyCardCount = 0;
     protected String mFilter = "";
+    private String currentQuery = "";
+    private String finalQuery = "";
     protected Object mGroup = null;
     protected DBHelper.LoyaltyCardOrder mOrder = DBHelper.LoyaltyCardOrder.Alpha;
     protected DBHelper.LoyaltyCardOrderDirection mOrderDirection = DBHelper.LoyaltyCardOrderDirection.Ascending;
@@ -68,8 +71,6 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
     private View mNoMatchingCardsText;
     private View mNoGroupCardsText;
     private TabLayout groupsTabLayout;
-    private String currentQuery = "";
-    private String finalQuery = "";
     private Runnable mUpdateLoyaltyCardListRunnable;
     private ActivityResultLauncher<Intent> mBarcodeScannerLauncher;
     private ActivityResultLauncher<Intent> mSettingsLauncher;
@@ -513,20 +514,15 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
         finalQuery = currentQuery;
         // Putting the query also into outState for later use in onRestoreInstanceState when rotating screen
         if (mSearchView != null) {
-            outState.putString("SEARCH_QUERY", finalQuery);
+            outState.putString(STATE_SEARCH_QUERY, finalQuery);
         }
     }
 
     @Override
     // Restoring instance state when rotation of screen happens with the goal to restore search query for user
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if (savedInstanceState != null) {
-            finalQuery = savedInstanceState.getString("SEARCH_QUERY", "");
-            if (mSearchView != null) {
-                mSearchView.setQuery(finalQuery, false);
-            }
-        }
+        finalQuery = savedInstanceState.getString(STATE_SEARCH_QUERY, "");
     }
 
     @Override
@@ -541,8 +537,6 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
             mSearchView = (SearchView) searchMenuItem.getActionView();
             mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
             mSearchView.setSubmitButtonEnabled(false);
-
-
             mSearchView.setOnCloseListener(() -> {
                 invalidateOptionsMenu();
                 return false;
