@@ -278,7 +278,6 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                Log.d("onBackPressed", "Back pressed");
                 if (mSearchView != null && !mSearchView.isIconified()) {
                     mSearchView.setIconified(true);
                 } else {
