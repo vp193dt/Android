@@ -561,6 +561,7 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
                             mSearchView.clearFocus();
                             return false;
                         }
+                        currentQuery = "";
                         mFilter = "";
                         updateLoyaltyCardList(false);
                         return true;
