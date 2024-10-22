@@ -607,6 +607,7 @@ public class MainActivity extends CatimaAppCompatActivity implements LoyaltyCard
                 searchMenuItem.expandActionView();
                 // Setting the query text to empty String due to behaviour of onQueryTextChange after coming back from picked card - onQueryTextChange is called automatically without users interaction
                 finalQuery = "";
+                mSearchView.setQuery(currentQuery, false);
             }
         }
 
