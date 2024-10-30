@@ -713,24 +713,26 @@ public class MainActivityTest {
         activityController.start();
         activityController.resume();
 
+        final Menu menu = shadowOf(Robolectric.setupActivity(MainActivity.class)).getOptionsMenu();
+        MenuItem searchMenuItem = menu.findItem(R.id.action_search);
+        SearchView mSearchView = (SearchView) searchMenuItem.getActionView();
+
+
         SQLiteDatabase database = TestHelpers.getEmptyDb(mainActivity).getWritableDatabase();
         DBHelper.insertLoyaltyCard(database, "The First Store", "Initial note", null, null, new BigDecimal("0"), null, "cardId", null, CatimaBarcode.fromBarcode(BarcodeFormat.UPC_A), Color.BLACK, 0, null,0);
         DBHelper.insertLoyaltyCard(database, "The Second Store", "Secondary note", null, null, new BigDecimal("0"), null, "cardId", null, CatimaBarcode.fromBarcode(BarcodeFormat.UPC_A), Color.BLACK, 0, null,0);
 
-        mainActivity.mFilter = "store";
+        String finalQuery = "store";
+        assert mSearchView != null;
+        mSearchView.setQuery(finalQuery, false);
 
         activityController.pause();
         activityController.resume();
 
         // Simulation of what happens when users comes back after picking up card
-        final Menu menu = shadowOf(Robolectric.setupActivity(MainActivity.class)).getOptionsMenu();
-        MenuItem searchMenuItem = menu.findItem(R.id.action_search);
-        SearchView mSearchView = (SearchView) searchMenuItem.getActionView();
-
         // We simulate expanding and setting the Query that we want to restore (in code it is from finalQuery String)
         searchMenuItem.expandActionView();
-        String finalQuery = "store";
-        assert mSearchView != null;
+
         mSearchView.setQuery(finalQuery, false);
 
         activityController.pause();
