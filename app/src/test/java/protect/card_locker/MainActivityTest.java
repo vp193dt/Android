@@ -35,6 +35,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @RunWith(RobolectricTestRunner.class)
 public class MainActivityTest {
     private SharedPreferences prefs;
@@ -509,4 +510,39 @@ public class MainActivityTest {
 
         database.close();
     }
+
+    // Test č. 1 pre sort
+    @Test
+    public void testSetSort() {
+        // Arrange
+        DBHelper.LoyaltyCardOrder mockOrder = DBHelper.LoyaltyCardOrder.ALPHABETICAL;
+        DBHelper.LoyaltyCardOrderDirection mockDirection = DBHelper.LoyaltyCardOrderDirection.ASCENDING;
+
+        mainActivity.setSort(mockOrder, mockDirection);
+
+        verify(mockEditor).putString("sharedpreference_sort_order", mockOrder.name());
+        verify(mockEditor).putString("sharedpreference_sort_direction", mockDirection.name());
+        verify(mockEditor).apply();
+    }
+
+    // Test č. 2 pre scale
+    @Test
+    public void testScaleScreen_shouldShowWelcomeIcon() {
+        // Arrange
+        DisplayMetrics mockDisplayMetrics = new DisplayMetrics();
+        mockDisplayMetrics.heightPixels = 700; // Example screen height
+        when(mockWindowManager.getDefaultDisplay()).thenReturn(mock(Display.class));
+        when(mockResources.getDisplayMetrics()).thenReturn(mockDisplayMetrics);
+
+        // Mock TypedValue conversion
+        float mediumSizePx = 600f; // Example medium size in pixels
+        when(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, MEDIUM_SCALE_FACTOR_DIP, mockDisplayMetrics))
+                .thenReturn(mediumSizePx);
+
+
+        // Assert
+        verify(mockInclude.welcomeIcon).setVisibility(View.VISIBLE);
+    }
+    // Test č. 3
+
 }
