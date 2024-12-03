@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased - 141
+
+- Change default column on wide screens to 4
+- Allow overriding column counts for portrait and landscape in settings
+
+## v2.32.1 - 140 (2024-10-29)
+
+- Fix text wrapping on add dialog
+
+## v2.32.0 - 139 (2024-10-28)
+
+- Option to navigate cards using the volume buttons
+- Fix Stocard import
+- Fix "Import cancelled" message appearing after successful import
+
 ## v2.31.1 - 138 (2024-08-24)
 
 - Fix back gesture on main screen dismissing keyboard and search on Android 13+

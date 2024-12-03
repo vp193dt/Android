@@ -19,6 +19,7 @@ import android.text.method.DigitsKeyListener;
 import android.text.style.ForegroundColorSpan;
 import android.text.util.Linkify;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -103,6 +104,28 @@ public class LoyaltyCardViewActivity extends CatimaAppCompatActivity implements 
 
     final private TaskHandler mTasks = new TaskHandler();
     Runnable barcodeImageGenerationFinishedCallback;
+
+    private long initTime = System.currentTimeMillis();
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (settings.useVolumeKeysForNavigation()) {
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                // Navigate to the previous card
+                if (initTime < (System.currentTimeMillis() - 1000)) {
+                    prevNextCard(false);
+                }
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                // Navigate to the next card
+                if (initTime < (System.currentTimeMillis() - 1000)) {
+                    prevNextCard(true);
+                }
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 
     public void onMainImageTap() {
         // If we're in fullscreen, leave fullscreen
@@ -697,7 +720,7 @@ public class LoyaltyCardViewActivity extends CatimaAppCompatActivity implements 
         binding.fabEdit.setImageDrawable(editButtonIcon);
 
         Bitmap icon = Utils.retrieveCardImage(this, loyaltyCard.id, ImageLocationType.icon);
-        Utils.setIconOrTextWithBackground(this, loyaltyCard, icon, binding.iconImage, binding.iconText);
+        Utils.setIconOrTextWithBackground(this, loyaltyCard, icon, binding.iconImage, binding.iconText, 1);
 
         // If the background is very bright, we should use dark icons
         backgroundNeedsDarkIcons = Utils.needsDarkForeground(backgroundHeaderColor);
